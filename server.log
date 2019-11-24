@@ -52,3 +52,84 @@ DEBUG:root:======
 INFO:root:First fin. Responding with finack
 INFO:root:Received the final ack
 INFO:root:### Server Finished ##
+INFO:root:### Server Started ###
+INFO:root:Initial Handshake: received the first syn
+INFO:root:Initial Handshake: Received ack to synack
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 1024
+DEBUG:root:Received seqNum 1576591776
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 3515422271, 'data': '', 'windowSize': 3, 'ackNum': 1576592800}]
+DEBUG:root:The Filedata received: b"## This document outlines the plan of action for testing.\n\n***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****\n\nSince we are starting with udp, we must establish following\n\nServer side:\n1. UDP base implementation and sending. Test it and verify <-- done\n2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)\n3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct\n4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding\n5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer\n6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.\n\nclient\n1. listens on a different port for sending acks.\n2. Similar to server, except sends ack within a while"
+DEBUG:root:======
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 1024
+DEBUG:root:Received seqNum 1576591776
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 3515422271, 'data': '', 'windowSize': 3, 'ackNum': 1576592800}]
+DEBUG:root:The Filedata received: b' true loop.\n3. Implement unpacking of object/struct. \n4. Implement comparing functions:\n       Will need to compare values with current seqNum counter.\n       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)\n5. Implement a function to append incoming data by extracting it from the received packet object/struct\n6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?\n7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)\n\nemulator (to be done last)\n1. UDP base implementation of forwarding data from server --> client, and client --> server\n      First test that this works without additional condition.\n2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)\n3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the'
+DEBUG:root:======
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 846
+DEBUG:root:Received seqNum 1576591776
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 3515422271, 'data': '', 'windowSize': 3, 'ackNum': 1576592622}]
+DEBUG:root:The Filedata received: b' server in a "while true" loop.\n4. Same goes for server back to client.\n5. emulator shouldn\'t know about additional settings (or shouldnt depend on) of client or server.\n6. Implement noise.\n      Divide to subtask: drop packet, drop ack\n\n===\nto do at the moment:\n1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.\n2. Need to refactor code. Can child somehow inherit and change parent fx\'s values without passing it via input var? The number of inputs on functions are too long\n===\nlogging standard\n1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370\n2. need to log ack or syn etc.\n===\nOptional to do:\n1. Change to global variable reference in functions\n\n\n'
+DEBUG:root:======
+INFO:root:First fin. Responding with finack
+INFO:root:Received the final ack
+INFO:root:### Server Finished ##
+INFO:root:### Server Started ###
+INFO:root:Initial Handshake: received the first syn
+INFO:root:Initial Handshake: Received ack to synack
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 1024
+DEBUG:root:Received seqNum 3381218655
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 1751330599, 'data': '', 'windowSize': 3, 'ackNum': 3381219679}]
+DEBUG:root:The Filedata received: b"## This document outlines the plan of action for testing.\n\n***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****\n\nSince we are starting with udp, we must establish following\n\nServer side:\n1. UDP base implementation and sending. Test it and verify <-- done\n2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)\n3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct\n4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding\n5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer\n6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.\n\nclient\n1. listens on a different port for sending acks.\n2. Similar to server, except sends ack within a while"
+DEBUG:root:======
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 1024
+DEBUG:root:Received seqNum 3381218655
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 1751330599, 'data': '', 'windowSize': 3, 'ackNum': 3381219679}]
+DEBUG:root:The Filedata received: b' true loop.\n3. Implement unpacking of object/struct. \n4. Implement comparing functions:\n       Will need to compare values with current seqNum counter.\n       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)\n5. Implement a function to append incoming data by extracting it from the received packet object/struct\n6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?\n7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)\n\nemulator (to be done last)\n1. UDP base implementation of forwarding data from server --> client, and client --> server\n      First test that this works without additional condition.\n2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)\n3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the'
+DEBUG:root:======
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 846
+DEBUG:root:Received seqNum 3381218655
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 1751330599, 'data': '', 'windowSize': 3, 'ackNum': 3381219501}]
+DEBUG:root:The Filedata received: b' server in a "while true" loop.\n4. Same goes for server back to client.\n5. emulator shouldn\'t know about additional settings (or shouldnt depend on) of client or server.\n6. Implement noise.\n      Divide to subtask: drop packet, drop ack\n\n===\nto do at the moment:\n1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.\n2. Need to refactor code. Can child somehow inherit and change parent fx\'s values without passing it via input var? The number of inputs on functions are too long\n===\nlogging standard\n1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370\n2. need to log ack or syn etc.\n===\nOptional to do:\n1. Change to global variable reference in functions\n\n\n'
+DEBUG:root:======
+INFO:root:First fin. Responding with finack
+INFO:root:Received the final ack
+INFO:root:### Server Finished ##
+INFO:root:### Server Started ###
+INFO:root:Initial Handshake: received the first syn
+INFO:root:Initial Handshake: Received ack to synack
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 1024
+DEBUG:root:Received seqNum 766562876
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 4244061132, 'data': '', 'windowSize': 3, 'ackNum': 766563900}]
+DEBUG:root:The Filedata received: b"## This document outlines the plan of action for testing.\n\n***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****\n\nSince we are starting with udp, we must establish following\n\nServer side:\n1. UDP base implementation and sending. Test it and verify <-- done\n2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)\n3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct\n4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding\n5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer\n6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.\n\nclient\n1. listens on a different port for sending acks.\n2. Similar to server, except sends ack within a while"
+DEBUG:root:======
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 1024
+DEBUG:root:Received seqNum 766562876
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 4244061132, 'data': '', 'windowSize': 3, 'ackNum': 766563900}]
+DEBUG:root:The Filedata received: b' true loop.\n3. Implement unpacking of object/struct. \n4. Implement comparing functions:\n       Will need to compare values with current seqNum counter.\n       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)\n5. Implement a function to append incoming data by extracting it from the received packet object/struct\n6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?\n7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)\n\nemulator (to be done last)\n1. UDP base implementation of forwarding data from server --> client, and client --> server\n      First test that this works without additional condition.\n2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)\n3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the'
+DEBUG:root:======
+DEBUG:root:======
+DEBUG:root:senderWindow: 3
+DEBUG:root:Filedata length: 846
+DEBUG:root:Received seqNum 766562876
+DEBUG:root:The ack packet being sent back: [{'fileName': '', 'packetType': 'ack', 'seqNum': 4244061132, 'data': '', 'windowSize': 3, 'ackNum': 766563722}]
+DEBUG:root:The Filedata received: b' server in a "while true" loop.\n4. Same goes for server back to client.\n5. emulator shouldn\'t know about additional settings (or shouldnt depend on) of client or server.\n6. Implement noise.\n      Divide to subtask: drop packet, drop ack\n\n===\nto do at the moment:\n1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.\n2. Need to refactor code. Can child somehow inherit and change parent fx\'s values without passing it via input var? The number of inputs on functions are too long\n===\nlogging standard\n1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370\n2. need to log ack or syn etc.\n===\nOptional to do:\n1. Change to global variable reference in functions\n\n\n'
+DEBUG:root:======
+INFO:root:First fin. Responding with finack
+INFO:root:Received the final ack
+INFO:root:### Server Finished ##
