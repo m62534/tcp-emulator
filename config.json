@@ -1,6 +1,6 @@
 {
     "server": {
-	"loglevel": "info",
+	"loglevel": "debug",
         "host": "",
         "port": 7006,
         "emul": {

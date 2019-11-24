@@ -20,12 +20,11 @@ emulHost = ''
 emulPort = 0
 
 
-
 def main():
-    # Configure Logging
-    logging.basicConfig(filename='server.log', level=logging.INFO)
-    logging.info('Server Started')
 
+    filename = ''
+
+    # Configure Logging
     myConfig = configObject('config.json')
     loglevel = myConfig.loglevel
     setLoglevel(loglevel)
@@ -65,43 +64,43 @@ def main():
             
             ## The 1st syn from Initial handshake
             if (len(fileData) == 0 and jsonObj[0]['packetType'] == 'syn') and not fin:
-                print("Initial Handshake: received the first syn")
+                logging.info("Initial Handshake: received the first syn")
                 ackNum = ackNum + 1
-                outboundPacket = generatePacket('synack', seqNum, data, windowSize, ackNum)
+                outboundPacket = generatePacket(filename, 'synack', seqNum, data, windowSize, ackNum)
                 sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
             
             ##  The 3rd ack from Initial 3 way handshake
             elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'ack') and not fin:
-                print("Initial Handshake: Received ack to synack")
-                outboundPacket = generatePacket('ack', seqNum, data, windowSize, ackNum)
+                logging.info("Initial Handshake: Received ack to synack")
+                outboundPacket = generatePacket(filename, 'ack', seqNum, data, windowSize, ackNum)
     
             ## If filedata
             elif (len(fileData) > 0 and jsonObj[0]['packetType'] == 'ack'):
                 
                 ackNum =  ackNum + len(fileData)
-                outboundPacket = generatePacket('ack', seqNum, data, windowSize, ackNum)
-                print("======")
-                print("senderWindow: ", senderWindow)
-                print("Filedata length: ", len(fileData))
-                print("Received seqNum ", jsonObj[0]['seqNum'])
-                print("The ack packet being sent back: ", outboundPacket)
-                print("======")
+                outboundPacket = generatePacket(filename, 'ack', seqNum, data, windowSize, ackNum)
+                logging.debug("======")
+                logging.debug("senderWindow: %s" % senderWindow)
+                logging.debug("Filedata length: %s" % len(fileData))
+                logging.debug("Received seqNum %s" % jsonObj[0]['seqNum'])
+                logging.debug("The ack packet being sent back: %s" % outboundPacket)
+                logging.debug("The Filedata received: %s" % fileData)
+                logging.debug("======")
                 sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
-                print("Has Data")
-                print(fileData)
-                with open("test2.pdf", 'ab') as fileBuffer:  # write binary
+                
+                with open(jsonObj[0]['fileName'], 'ab') as fileBuffer:  # write binary
                     fileBuffer.write(fileData)
             
             ## First fin sets fin to true
             elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'fin'):
                 fin = True
-                print("First fin. Responding with finack")
-                outboundPacket = generatePacket('finack', seqNum, data, windowSize, ackNum)
+                logging.info("First fin. Responding with finack")
+                outboundPacket = generatePacket(filename, 'finack', seqNum, data, windowSize, ackNum)
                 sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
             
             ## Final Ack received. Can close connection and break out of loop
             elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'ack') and fin:
-                print("Received the final ack")
+                logging.info("Received the final ack")
                 sockObjServer.close()
                 break
             
@@ -123,25 +122,22 @@ class configObject:
 
 
 
+# Set Logging
 def setLoglevel(loglevel):
-    print("loglevel: %s" % loglevel)
-    if loglevel.lower() == 'critical':
-        logging.basicConfig(filename='client.log', level=logging.CRITICAL)
-    elif loglevel.lower() == 'error':
-        logging.basicConfig(filename='client.log', level=logging.ERROR)
-    elif loglevel.lower() == 'warning':
-        logging.basicConfig(filename='client.log', level=logging.WARNING)
-    elif loglevel.lower() == 'info':
-        logging.basicConfig(filename='client.log', level=logging.INFO)
-    elif loglevel.lower() == 'debug':
-        logging.basicConfig(filename='client.log', level=logging.DEBUG)
-    elif loglevel.lower() == 'notset':
-        logging.basicConfig(filename='client.log', level=logging.NOTSET)
+    loglevels = {
+        "critical": logging.CRITICAL,
+        "error": logging.ERROR,
+        "warning": logging.WARNING,
+        "info": logging.INFO,
+        "debug": logging.DEBUG,
+        "notset": logging.NOTSET
+    }
+    logging.basicConfig(filename='server.log', level=loglevels[loglevel])
 
 
 
-def generatePacket(packetType, seqNum, data, windowSize, ackNum):
-    return [{"packetType": packetType, "seqNum": seqNum, "data": data, "windowSize": windowSize, "ackNum": ackNum}]
+def generatePacket(filename, packetType, seqNum, data, windowSize, ackNum):
+    return [{"fileName": filename, "packetType": packetType, "seqNum": seqNum, "data": data, "windowSize": windowSize, "ackNum": ackNum}]
 
 
 

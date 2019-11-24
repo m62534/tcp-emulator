@@ -26,6 +26,7 @@ def main():
 
     #fx, listOfFiles = argVerify(sys.argv)
     #print("verified fx: %s" % fx)
+    filename = 'plan.txt'
 
     # load Config
     myConfig = configObject('config.json')
@@ -43,10 +44,12 @@ def main():
     emulPort = myConfig.emulPort
 
     # later to be replaced by value in config.json
+    global timeoutVal, maxRetry
     timeoutVal = 1
     maxRetry = 5 
 
     #Socket for server (to send data) and client (to receive acks)
+    global sockObjServer, sockObjClient
     sockObjServer = socket(AF_INET, SOCK_DGRAM) 
     sockObjClient = socket(AF_INET, SOCK_DGRAM)
     sockObjClient.bind((clientHost, clientPort))
@@ -54,8 +57,9 @@ def main():
 
     # Handle send and conditions
     # ** just need to change serverhost and serverport to emul* for the proxy config
-    sendHandler(sockObjServer, sockObjClient, serverHost, serverPort, dataArrayer('plan.txt'), timeoutVal, maxRetry)
-    
+    #sendHandler(filename, sockObjServer, sockObjClient, serverHost, serverPort, timeoutVal, maxRetry)
+    sendHandler(filename)
+
     #close the connection
     sockObjServer.close()
     sockObjClient.close()
@@ -101,50 +105,47 @@ def dataArrayer(filename):
 
 # Set Logging
 def setLoglevel(loglevel):
-    print("loglevel: %s" % loglevel)
-    if loglevel.lower() == 'critical':
-        logging.basicConfig(filename='client.log', level=logging.CRITICAL)
-    elif loglevel.lower() == 'error':
-        logging.basicConfig(filename='client.log', level=logging.ERROR)
-    elif loglevel.lower() == 'warning':
-        logging.basicConfig(filename='client.log', level=logging.WARNING)
-    elif loglevel.lower() == 'info':
-        logging.basicConfig(filename='client.log', level=logging.INFO)
-    elif loglevel.lower() == 'debug':
-        logging.basicConfig(filename='client.log', level=logging.DEBUG)
-    elif loglevel.lower() == 'notset':
-        logging.basicConfig(filename='client.log', level=logging.NOTSET)
+    loglevels = {
+        "critical": logging.CRITICAL,
+        "error": logging.ERROR,
+        "warning": logging.WARNING,
+        "info": logging.INFO,
+        "debug": logging.DEBUG,
+        "notset": logging.NOTSET
+    }
+    logging.basicConfig(filename='client.log', level=loglevels[loglevel])
 
 # Main function for handling the sends.
 # Uses 3 sub functions: initialHandshake, dataTransfer, closingHandshake
-def sendHandler(sockObjectServer, sockObjClient, serverHost, serverPort, dataArray, timeoutVal, maxRetry):
+def sendHandler(filename):
     counter = -1 # always start with -1 for initial handshake to work
     # Packet metadata initiaize
     maxSeq = 2**32 - 1
     seqNum = randint(0, maxSeq) ##0 to 2^32 -1
     ackNum = 0
     windowSize = 3
+    dataArray = dataArrayer(filename)
 
     # Testing for handshake
-    seqNum, handShake = initialHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient, timeoutVal , maxRetry)
+    seqNum, handShake = initialHandshake(filename, seqNum, windowSize, ackNum)
     if handShake:
         ##### Data Transfer #########
-        seqNum, counter = dataTransfer(seqNum , dataArray, windowSize, ackNum, counter, sockObjectServer, sockObjClient, timeoutVal, maxRetry)
-    closingHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient, timeoutVal, maxRetry)
+        seqNum, counter = dataTransfer(filename, seqNum , dataArray, windowSize, ackNum, counter)
+    closingHandshake(filename, seqNum, windowSize, ackNum)
+
 
 
 # Controls the initial 3-way handshkae mechanism
-def initialHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient, timeoutVal, maxRetry):
+def initialHandshake(filename, seqNum, windowSize, ackNum):
     jsonObj = ''
     responseType = ''
     responseAckNum = ''
     packetReceived = False
     retryCounter = 0
     
-    
     while packetReceived == False and retryCounter < maxRetry:
-        outboundPacket = generatePacket("syn", seqNum, b''.decode("utf-8"), windowSize, ackNum)
-        sockObjectServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+        outboundPacket = generatePacket(filename, "syn", seqNum, b''.decode("utf-8"), windowSize, ackNum)
+        sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
         logging.info("Handshake: Sent SYN...")
         try:
             data, address = sockObjClient.recvfrom(4096)
@@ -156,8 +157,8 @@ def initialHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient
 
                 if (responseType.lower() == 'synack' and responseAckNum  == expectAckNum):
                     logging.info("Handshake: Sending ack to synack")
-                    outboundPacket = generatePacket("ack", seqNum, b''.decode("utf-8"), windowSize, ackNum)
-                    sockObjectServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+                    outboundPacket = generatePacket(filename, "ack", seqNum, b''.decode("utf-8"), windowSize, ackNum)
+                    sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
                     packetReceived = True
                     logging.info("Handshake: Received SYNACK... Sending the final Ack")
                     retryCounter = 0 # Reset
@@ -172,8 +173,10 @@ def initialHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient
     
     return seqNum, packetReceived
 
+
+
 # Receives dataArray, transfers data
-def dataTransfer(seqNum , dataArray, windowSize, ackNum, counter, sockObjectServer, sockObjectClient, timeoutVal, maxRetry):
+def dataTransfer(filename, seqNum , dataArray, windowSize, ackNum, counter):
     jsonObj = ''
     responseType = ''
     counter = 0
@@ -183,10 +186,10 @@ def dataTransfer(seqNum , dataArray, windowSize, ackNum, counter, sockObjectServ
     logging.info("starting data transfer")
 
     while counter < len(dataArray) and retryCounter < maxRetry:
-        outboundPacket = generatePacket("ack", seqNum, dataArray[counter].decode("utf-8"), windowSize, ackNum)
-        sockObjectServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+        outboundPacket = generatePacket(filename, "ack", seqNum, dataArray[counter].decode("utf-8"), windowSize, ackNum)
+        sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
         try:
-            data, address = sockObjectClient.recvfrom(4096)
+            data, address = sockObjClient.recvfrom(4096)
             if data:
                 # increment the expected
                 expectAckNum = seqNum + len(dataArray[counter])
@@ -226,13 +229,13 @@ def dataTransfer(seqNum , dataArray, windowSize, ackNum, counter, sockObjectServ
 
 
 # Controls fin finack ack handshake
-def closingHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient, timeoutVal, maxRetry):
+def closingHandshake(filename, seqNum, windowSize, ackNum):
     jsonObj = ''
     
     retryCounter = 0
     while retryCounter < maxRetry:
-        outboundPacket = generatePacket("fin", seqNum, b''.decode("utf-8"), windowSize, ackNum)
-        sockObjectServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+        outboundPacket = generatePacket(filename, "fin", seqNum, b''.decode("utf-8"), windowSize, ackNum)
+        sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
         try:
             data, address = sockObjClient.recvfrom(4096)
             if data:
@@ -248,8 +251,8 @@ def closingHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient
         expectAckNum = seqNum
         logging.info("Fin Handshake")
         if (responseType.lower() == 'finack' and responseAckNum  == expectAckNum):
-            outboundPacket = generatePacket("ack", seqNum, b''.decode("utf-8"), windowSize, ackNum)
-            sockObjectServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+            outboundPacket = generatePacket(filename, "ack", seqNum, b''.decode("utf-8"), windowSize, ackNum)
+            sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
             logging.debug("i sent the ack to the finack")
             break
         else:
@@ -259,8 +262,8 @@ def closingHandshake(seqNum, windowSize, ackNum, sockObjectServer, sockObjClient
 
 
 # Packages as json. windowSize is in seconds
-def generatePacket(packetType, seqNum, data, windowSize, ackNum):
-    return [{"packetType": packetType, "seqNum": seqNum, "data": data, "windowSize": windowSize, "ackNum": ackNum}]
+def generatePacket(filename, packetType, seqNum, data, windowSize, ackNum):
+    return [{"fileName": filename, "packetType": packetType, "seqNum": seqNum, "data": data, "windowSize": windowSize, "ackNum": ackNum}]
 
 
 
