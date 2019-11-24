@@ -12,14 +12,6 @@ from random import randint
 # client: 172.31.29.28
 # emul: 172.31.29.146
 
-serverHost = ''
-serverPort = 0
-clientHost = ''
-clientPort = 0
-emulHost = ''
-emulPort = 0
-
-
 def main():
 
     filename = ''
@@ -40,12 +32,18 @@ def main():
     emulHost = myConfig.emulHost
     emulPort = myConfig.emulPort
 
+    global timeoutVal, maxRetry
+    timeoutVal = myConfig.timeoutVal
+    maxRetry = myConfig.maxRetry
+
     #Socket for receiving
+    global sockObjServer, sockObjClient
     sockObjServer = socket(AF_INET, SOCK_DGRAM)
     sockObjServer.bind((serverHost, serverPort))
     #Socket for sending
     sockObjClient = socket(AF_INET, SOCK_DGRAM)
 
+    # Randomizes initial seqNum
     seqNum = randint(0, (2**32 - 1)) ##0 to 2^32 -1
     windowSize = 3
     fin = False
@@ -119,6 +117,8 @@ class configObject:
             self.emulHost = data['server']['emul']['host']
             self.emulPort = data['server']['emul']['port']
             self.loglevel = data['server']['loglevel']
+            self.timeoutVal = data['server']['timeoutVal']
+            self.maxRetry = data['server']['maxRetry']
 
 
 

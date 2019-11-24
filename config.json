@@ -3,6 +3,8 @@
 	"loglevel": "debug",
         "host": "",
         "port": 7006,
+	"timeoutVal": 1,
+	"maxRetry" : 5,
         "emul": {
             "host": "",
             "port": 7004
@@ -12,6 +14,8 @@
 	"loglevel": "debug",
         "host": "",
         "port": 7005,
+	"timeoutVal": 1,
+        "maxRetry" : 5,
         "emul": {
             "host": "",
             "port": 7003

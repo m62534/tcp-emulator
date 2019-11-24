@@ -13,15 +13,6 @@ from random import randint
 # client: 172.31.29.28
 # emul: 172.31.29.146
 
-serverHost = ''
-serverPort = 0
-clientHost = ''
-clientPort = 0
-emulHost = ''
-emulPort = 0
-
-
-
 def main():
 
     #fx, listOfFiles = argVerify(sys.argv)
@@ -29,7 +20,7 @@ def main():
     filename = 'plan.txt'
 
     # load Config
-    myConfig = configObject('config.json')
+    myConfig = configObject('../config.json')
     loglevel = myConfig.loglevel
     setLoglevel(loglevel)
 
@@ -43,10 +34,9 @@ def main():
     emulHost = myConfig.emulHost
     emulPort = myConfig.emulPort
 
-    # later to be replaced by value in config.json
     global timeoutVal, maxRetry
-    timeoutVal = 1
-    maxRetry = 5 
+    timeoutVal = myConfig.timeoutVal
+    maxRetry = myConfig.maxRetry
 
     #Socket for server (to send data) and client (to receive acks)
     global sockObjServer, sockObjClient
@@ -56,8 +46,6 @@ def main():
     sockObjClient.settimeout(timeoutVal)
 
     # Handle send and conditions
-    # ** just need to change serverhost and serverport to emul* for the proxy config
-    #sendHandler(filename, sockObjServer, sockObjClient, serverHost, serverPort, timeoutVal, maxRetry)
     sendHandler(filename)
 
     #close the connection
@@ -79,6 +67,8 @@ class configObject:
             self.emulHost = data['client']['emul']['host']
             self.emulPort = data['client']['emul']['port']
             self.loglevel = data['client']['loglevel']
+            self.timeoutVal = data['client']['timeoutVal']
+            self.maxRetry = data['client']['maxRetry']
 
 
 class sessionObject:
@@ -118,10 +108,11 @@ def setLoglevel(loglevel):
 # Main function for handling the sends.
 # Uses 3 sub functions: initialHandshake, dataTransfer, closingHandshake
 def sendHandler(filename):
-    counter = -1 # always start with -1 for initial handshake to work
     # Packet metadata initiaize
     maxSeq = 2**32 - 1
-    seqNum = randint(0, maxSeq) ##0 to 2^32 -1
+
+    # Randomizes initial sequence number
+    seqNum = randint(0, maxSeq)
     ackNum = 0
     windowSize = 3
     dataArray = dataArrayer(filename)
@@ -215,7 +206,7 @@ def sendHandler(filename):
         logging.info("Finished data transfer")
         logging.info("======================")
 
-        return seqNum, counter
+        return seqNum
     
     # Controls fin finack ack handshake
     def closingHandshake():
@@ -253,8 +244,8 @@ def sendHandler(filename):
     seqNum, handShake = initialHandshake()
     if handShake:
         ##### Data Transfer #########
-        seqNum, counter = dataTransfer()
-    closingHandshake(filename, seqNum, windowSize, ackNum)
+        seqNum = dataTransfer()
+    closingHandshake()
 
 
 
