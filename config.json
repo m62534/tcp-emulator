@@ -1,0 +1,26 @@
+{
+    "server": {
+	"loglevel": "info",
+        "host": "",
+        "port": 7006,
+        "emul": {
+            "host": "",
+            "port": 7004
+        }
+    },
+    "client": {
+	"loglevel": "debug",
+        "host": "",
+        "port": 7005,
+        "emul": {
+            "host": "",
+            "port": 7003
+        }
+    },
+    "emul": {
+	"loglevel": "info",
+        "host": "",
+        "clientPort": 7003,
+        "serverPort": 7004
+    }
+}
