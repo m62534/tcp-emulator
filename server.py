@@ -47,6 +47,7 @@ def main():
     # Randomizes initial seqNum
     seqNum = randint(0, (2**32 - 1)) ##0 to 2^32 -1
     fin = False
+    emulServerRecvPort = 7777
     endOfFile = False
 
     ## Always listen
@@ -70,13 +71,14 @@ def main():
                 logging.info("Initial Handshake: received the first syn")
                 ackNum = ackNum + 1
                 outboundPacket = generatePacket(filename, 'synack', seqNum, data, windowSize, ackNum)
-                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
+                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulServerRecvPort))
             
             ##  The 3rd ack from Initial 3 way handshake
             elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'ack') and not fin:
                 logging.info("Initial Handshake: Received ack to synack")
-                outboundPacket = generatePacket(filename, 'ack', seqNum, data, windowSize, ackNum)
-    
+                print("Initial Handshake: Received ack to synack")
+                outboundPacket = generatePacket(filename, 'skip', seqNum, data, windowSize, ackNum)
+                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulServerRecvPort))
             ## If filedata
             elif (len(fileData) > 0 and jsonObj[0]['packetType'] == 'ack'):
                 
@@ -93,7 +95,7 @@ def main():
                 logging.debug("The ack packet being sent back: %s" % outboundPacket)
                 logging.debug("The Filedata received: %s" % fileData)
                 logging.debug("======")
-                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
+                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulServerRecvPort))
                 
                 with open(jsonObj[0]['fileName'], 'ab') as fileBuffer:  # write binary
                     fileBuffer.write(fileData)
@@ -103,8 +105,7 @@ def main():
                 fin = True
                 logging.info("First fin. Responding with finack")
                 outboundPacket = generatePacket(filename, 'finack', seqNum, data, windowSize, ackNum)
-                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
-                print("received fin, sending finakc")
+                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulServerRecvPort))
             
             ## Final Ack received. Can close connection and break out of loop
             elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'ack' and fin and endOfFile):

@@ -17,7 +17,7 @@ def main():
 
     #fx, listOfFiles = argVerify(sys.argv)
     #print("verified fx: %s" % fx)
-    filename = 'test.pdf'
+    filename = 'plan.txt'
 
     # load Config
     myConfig = configObject('../config.json')
@@ -40,8 +40,8 @@ def main():
     windowSize = myConfig.windowSize
 
     #Socket for server (to send data) and client (to receive acks)
-    global sockObjServer, sockObjClient
-    sockObjServer = socket(AF_INET, SOCK_DGRAM) 
+    global sockObjEmul, sockObjClient
+    sockObjEmul = socket(AF_INET, SOCK_DGRAM) 
     sockObjClient = socket(AF_INET, SOCK_DGRAM)
     sockObjClient.bind((clientHost, clientPort))
     sockObjClient.settimeout(timeoutVal)
@@ -50,7 +50,7 @@ def main():
     sendHandler(filename)
 
     #close the connection
-    sockObjServer.close()
+    sockObjEmul.close()
     sockObjClient.close()
 
     logging.info('### Client Finished ##')
@@ -129,7 +129,7 @@ def sendHandler(filename):
         
         while packetReceived == False and retryCounter < maxRetry:
             outboundPacket = generatePacket(filename, "syn", seqNum, b''.hex(), windowSize, ackNum, "3way-handshake")
-            sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+            sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulPort))
             logging.info("Handshake: Sent SYN...")
             try:
                 data, address = sockObjClient.recvfrom(4096)
@@ -141,11 +141,13 @@ def sendHandler(filename):
 
                     if (responseType.lower() == 'synack' and responseAckNum  == expectAckNum):
                         logging.info("Handshake: Sending ack to synack")
+                        print("received synack")
                         outboundPacket = generatePacket(filename, "ack", seqNum, b''.hex(), windowSize, ackNum, "3way-handshake")
-                        sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+                        sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulPort))
                         packetReceived = True
                         logging.info("Handshake: Received SYNACK... Sending the final Ack")
                         retryCounter = 0 # Reset
+                        break
                     else:
                         print("Handshake: Received: ", responseType.lower())
                         
@@ -185,12 +187,12 @@ def sendHandler(filename):
         while not len(slidingWindow) == 0 and retryCounter < maxRetry:
             if not retryCounter == 0:
                 for x in slidingWindow:
-                    sockObjServer.sendto(bytes(json.dumps(x), "utf-8"),(serverHost, serverPort))
+                    sockObjEmul.sendto(bytes(json.dumps(x), "utf-8"),(emulHost, emulPort))
             elif endOfFile: 
-                sockObjServer.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(serverHost, serverPort))
+                sockObjEmul.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(emulHost, emulPort))
                 break
             else:
-                sockObjServer.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(serverHost, serverPort))
+                sockObjEmul.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(emulHost, emulPort))
 
 
             try:
@@ -241,7 +243,6 @@ def sendHandler(filename):
                 print("Data Transfer: Socket Timeout, Retrying...")
                 logging.error("Data Transfer: Socket Timeout, Retrying...")
                 retryCounter = retryCounter + 1
-        print("finished datatransfer()")
         logging.info("Finished data transfer")
         logging.info("======================")
 
@@ -251,32 +252,33 @@ def sendHandler(filename):
     def closingHandshake():
         nonlocal filename, seqNum, ackNum
         jsonObj = ''
+        packetReceived = False
         
         retryCounter = 0
-        while retryCounter < maxRetry:
+        while packetReceived == False and retryCounter < maxRetry:
             outboundPacket = generatePacket(filename, "fin", seqNum, b''.hex(), windowSize, ackNum, "fin-handshake")
-            sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+            sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulPort))
             try:
                 data, address = sockObjClient.recvfrom(4096)
                 if data:
                     jsonObj = json.loads(data.decode("utf-8"))
                     responseType = jsonObj[0]['packetType']
                     responseAckNum = jsonObj[0]['ackNum']
-                    retryCounter = 0
+                    expectAckNum = seqNum
+                    logging.info("Fin Handshake")
+                    if (responseType.lower() == 'finack' and responseAckNum  == expectAckNum):
+                        retryCounter = 0
+                        packetReceived = True
+                        outboundPacket = generatePacket(filename, "ack", seqNum, b''.hex(), windowSize, ackNum, "fin-handshake")
+                        sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
+                        logging.debug("i sent the ack to the finack")
+                        break
+                    else:
+                        logging.error("fin issue")
+                        retryCounter = retryCounter + 1
             except timeout:
                 print("Fin Handshake: Socket Timeout, Retrying...")
                 logging.error("Fin handshake: Socket Timeout, Retrying...")
-                retryCounter = retryCounter + 1
-
-            expectAckNum = seqNum
-            logging.info("Fin Handshake")
-            if (responseType.lower() == 'finack' and responseAckNum  == expectAckNum):
-                outboundPacket = generatePacket(filename, "ack", seqNum, b''.hex(), windowSize, ackNum, "fin-handshake")
-                sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
-                logging.debug("i sent the ack to the finack")
-                break
-            else:
-                logging.error("fin issue")
                 retryCounter = retryCounter + 1
     
     # Testing for handshake

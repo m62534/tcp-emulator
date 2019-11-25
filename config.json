@@ -4,7 +4,7 @@
         "host": "",
         "port": 7006,
 	"timeoutVal": 1,
-	"maxRetry" : 5,
+	"maxRetry" : 500,
 	"windowSize" : 1,
         "emul": {
             "host": "",
@@ -16,7 +16,7 @@
         "host": "",
         "port": 7005,
 	"timeoutVal": 1,
-        "maxRetry" : 5,
+        "maxRetry" : 500,
 	"windowSize" : 1,
         "emul": {
             "host": "",
@@ -28,5 +28,6 @@
         "host": "",
         "clientPort": 7003,
         "serverPort": 7004
-    }
+    },
+    "BER": 0
 }

@@ -1,0 +1,288 @@
+## This document outlines the plan of action for testing.
+
+***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****
+
+Since we are starting with udp, we must establish following
+
+Server side:
+1. UDP base implementation and sending. Test it and verify <-- done
+2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)
+3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct
+4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding
+5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer
+6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.
+
+client
+1. listens on a different port for sending acks.
+2. Similar to server, except sends ack within a while true loop.
+3. Implement unpacking of object/struct. 
+4. Implement comparing functions:
+       Will need to compare values with current seqNum counter.
+       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)
+5. Implement a function to append incoming data by extracting it from the received packet object/struct
+6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?
+7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)
+
+emulator (to be done last)
+1. UDP base implementation of forwarding data from server --> client, and client --> server
+      First test that this works without additional condition.
+2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)
+3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the server in a "while true" loop.
+4. Same goes for server back to client.
+5. emulator shouldn't know about additional settings (or shouldnt depend on) of client or server.
+6. Implement noise.
+      Divide to subtask: drop packet, drop ack
+
+===
+to do at the moment:
+1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.
+2. Need to refactor code. Can child somehow inherit and change parent fx's values without passing it via input var? The number of inputs on functions are too long
+===
+logging standard
+1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370
+2. need to log ack or syn etc.
+===
+Optional to do:
+1. Change to global variable reference in functions
+
+
+## This document outlines the plan of action for testing.
+
+***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****
+
+Since we are starting with udp, we must establish following
+
+Server side:
+1. UDP base implementation and sending. Test it and verify <-- done
+2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)
+3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct
+4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding
+5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer
+6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.
+
+client
+1. listens on a different port for sending acks.
+2. Similar to server, except sends ack within a while true loop.
+3. Implement unpacking of object/struct. 
+4. Implement comparing functions:
+       Will need to compare values with current seqNum counter.
+       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)
+5. Implement a function to append incoming data by extracting it from the received packet object/struct
+6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?
+7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)
+
+emulator (to be done last)
+1. UDP base implementation of forwarding data from server --> client, and client --> server
+      First test that this works without additional condition.
+2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)
+3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the server in a "while true" loop.
+4. Same goes for server back to client.
+5. emulator shouldn't know about additional settings (or shouldnt depend on) of client or server.
+6. Implement noise.
+      Divide to subtask: drop packet, drop ack
+
+===
+to do at the moment:
+1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.
+2. Need to refactor code. Can child somehow inherit and change parent fx's values without passing it via input var? The number of inputs on functions are too long
+===
+logging standard
+1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370
+2. need to log ack or syn etc.
+===
+Optional to do:
+1. Change to global variable reference in functions
+
+
+## This document outlines the plan of action for testing.
+
+***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****
+
+Since we are starting with udp, we must establish following
+
+Server side:
+1. UDP base implementation and sending. Test it and verify <-- done
+2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)
+3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct
+4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding
+5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer
+6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.
+
+client
+1. listens on a different port for sending acks.
+2. Similar to server, except sends ack within a while true loop.
+3. Implement unpacking of object/struct. 
+4. Implement comparing functions:
+       Will need to compare values with current seqNum counter.
+       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)
+5. Implement a function to append incoming data by extracting it from the received packet object/struct
+6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?
+7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)
+
+emulator (to be done last)
+1. UDP base implementation of forwarding data from server --> client, and client --> server
+      First test that this works without additional condition.
+2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)
+3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the server in a "while true" loop.
+4. Same goes for server back to client.
+5. emulator shouldn't know about additional settings (or shouldnt depend on) of client or server.
+6. Implement noise.
+      Divide to subtask: drop packet, drop ack
+
+===
+to do at the moment:
+1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.
+2. Need to refactor code. Can child somehow inherit and change parent fx's values without passing it via input var? The number of inputs on functions are too long
+===
+logging standard
+1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370
+2. need to log ack or syn etc.
+===
+Optional to do:
+1. Change to global variable reference in functions
+
+
+## This document outlines the plan of action for testing.
+
+***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****
+
+Since we are starting with udp, we must establish following
+
+Server side:
+1. UDP base implementation and sending. Test it and verify <-- done
+2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)
+3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct
+4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding
+5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer
+6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.
+
+client
+1. listens on a different port for sending acks.
+2. Similar to server, except sends ack within a while true loop.
+3. Implement unpacking of object/struct. 
+4. Implement comparing functions:
+       Will need to compare values with current seqNum counter.
+       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)
+5. Implement a function to append incoming data by extracting it from the received packet object/struct
+6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?
+7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)
+
+emulator (to be done last)
+1. UDP base implementation of forwarding data from server --> client, and client --> server
+      First test that this works without additional condition.
+2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)
+3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the server in a "while true" loop.
+4. Same goes for server back to client.
+5. emulator shouldn't know about additional settings (or shouldnt depend on) of client or server.
+6. Implement noise.
+      Divide to subtask: drop packet, drop ack
+
+===
+to do at the moment:
+1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.
+2. Need to refactor code. Can child somehow inherit and change parent fx's values without passing it via input var? The number of inputs on functions are too long
+===
+logging standard
+1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370
+2. need to log ack or syn etc.
+===
+Optional to do:
+1. Change to global variable reference in functions
+
+
+## This document outlines the plan of action for testing.
+
+***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****
+
+Since we are starting with udp, we must establish following
+
+Server side:
+1. UDP base implementation and sending. Test it and verify <-- done
+2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)
+3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct
+4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding
+5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer
+6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.
+
+client
+1. listens on a different port for sending acks.
+2. Similar to server, except sends ack within a while true loop.
+3. Implement unpacking of object/struct. 
+4. Implement comparing functions:
+       Will need to compare values with current seqNum counter.
+       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)
+5. Implement a function to append incoming data by extracting it from the received packet object/struct
+6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?
+7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)
+
+emulator (to be done last)
+1. UDP base implementation of forwarding data from server --> client, and client --> server
+      First test that this works without additional condition.
+2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)
+3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the server in a "while true" loop.
+4. Same goes for server back to client.
+5. emulator shouldn't know about additional settings (or shouldnt depend on) of client or server.
+6. Implement noise.
+      Divide to subtask: drop packet, drop ack
+
+===
+to do at the moment:
+1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.
+2. Need to refactor code. Can child somehow inherit and change parent fx's values without passing it via input var? The number of inputs on functions are too long
+===
+logging standard
+1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370
+2. need to log ack or syn etc.
+===
+Optional to do:
+1. Change to global variable reference in functions
+
+
+## This document outlines the plan of action for testing.
+
+***** need to replace multi-variable input on functions with object instantiated with class that stores all the state instead. This will remove all the need for so many inputs *****
+
+Since we are starting with udp, we must establish following
+
+Server side:
+1. UDP base implementation and sending. Test it and verify <-- done
+2. Object-based sending. test and verify <-- testing pickle. Will proceed to struct (binary data is 1024c)
+3. Implement dividing file being sent to binary size of 1024. Encapsulate within object or struct
+4. Single packet object sending and acking. Brainstorm multiple packet object sending and decoding
+5. Implement timeout based on window size. Every 'set' of send-and-wait will rely on this timer
+6. Introduce conditional on server based on ack behavior. Client and emulator can be oblivious to the time, but server must know.
+
+client
+1. listens on a different port for sending acks.
+2. Similar to server, except sends ack within a while true loop.
+3. Implement unpacking of object/struct. 
+4. Implement comparing functions:
+       Will need to compare values with current seqNum counter.
+       Will need to compare time sent vs current time (but send-and-wait may exclude that condition)
+5. Implement a function to append incoming data by extracting it from the received packet object/struct
+6. How will the data be repackaged once the data is completely received? What file identifier need to be conveyed by sender and how?
+7. if received data out of window, drop (but what determines the delta of time? may include timestamp assuming servers are in sync)
+
+emulator (to be done last)
+1. UDP base implementation of forwarding data from server --> client, and client --> server
+      First test that this works without additional condition.
+2. Emulator will have 2 set of listeners for cleanness (different port for receiving from server and client)
+3. Once tested, we just redirect the server port and IP to emulator, then emulator will keep forwarding to the server in a "while true" loop.
+4. Same goes for server back to client.
+5. emulator shouldn't know about additional settings (or shouldnt depend on) of client or server.
+6. Implement noise.
+      Divide to subtask: drop packet, drop ack
+
+===
+to do at the moment:
+1. Need retry mechanism implemented. Consecutive fails in getting ack will increment. If it receives ack after failing but before reaching threshold, the counter needs to reset.
+2. Need to refactor code. Can child somehow inherit and change parent fx's values without passing it via input var? The number of inputs on functions are too long
+===
+logging standard
+1. need timestamp: ref. https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python/44175370
+2. need to log ack or syn etc.
+===
+Optional to do:
+1. Change to global variable reference in functions
+
+
