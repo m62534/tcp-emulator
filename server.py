@@ -32,9 +32,10 @@ def main():
     emulHost = myConfig.emulHost
     emulPort = myConfig.emulPort
 
-    global timeoutVal, maxRetry
+    global timeoutVal, maxRetry, windowSize
     timeoutVal = myConfig.timeoutVal
     maxRetry = myConfig.maxRetry
+    windowSize = myConfig.windowSize
 
     #Socket for receiving
     global sockObjServer, sockObjClient
@@ -45,8 +46,8 @@ def main():
 
     # Randomizes initial seqNum
     seqNum = randint(0, (2**32 - 1)) ##0 to 2^32 -1
-    windowSize = 3
     fin = False
+    endOfFile = False
 
     ## Always listen
     while True:
@@ -55,10 +56,14 @@ def main():
         senderWindow = 0  # instantiate windowSize
         if data:
             jsonObj = json.loads(data.decode("utf-8"))
-            fileData = jsonObj[0]['data'].encode("utf-8")
+            fileData = bytes.fromhex(jsonObj[0]['data'])
             ackNum = jsonObj[0]['seqNum']
             senderWindow = jsonObj[0]['windowSize']
-            data = b''.decode("utf-8")
+            data = b''.hex()
+
+            if jsonObj[0]['transferState'].lower() == 'eof':
+                endOfFile = True
+                print("I've reached the end")
             
             ## The 1st syn from Initial handshake
             if (len(fileData) == 0 and jsonObj[0]['packetType'] == 'syn') and not fin:
@@ -75,6 +80,10 @@ def main():
             ## If filedata
             elif (len(fileData) > 0 and jsonObj[0]['packetType'] == 'ack'):
                 
+
+                ## include logic for larger windowSize
+                # while less than windowSize, append
+
                 ackNum =  ackNum + len(fileData)
                 outboundPacket = generatePacket(filename, 'ack', seqNum, data, windowSize, ackNum)
                 logging.debug("======")
@@ -90,15 +99,17 @@ def main():
                     fileBuffer.write(fileData)
             
             ## First fin sets fin to true
-            elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'fin'):
+            elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'fin' and endOfFile):
                 fin = True
                 logging.info("First fin. Responding with finack")
                 outboundPacket = generatePacket(filename, 'finack', seqNum, data, windowSize, ackNum)
                 sockObjServer.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(clientHost, clientPort))
+                print("received fin, sending finakc")
             
             ## Final Ack received. Can close connection and break out of loop
-            elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'ack') and fin:
+            elif (len(fileData) == 0 and jsonObj[0]['packetType'] == 'ack' and fin and endOfFile):
                 logging.info("Received the final ack")
+                print("Received the final ack")
                 sockObjServer.close()
                 break
             
@@ -119,6 +130,7 @@ class configObject:
             self.loglevel = data['server']['loglevel']
             self.timeoutVal = data['server']['timeoutVal']
             self.maxRetry = data['server']['maxRetry']
+            self.windowSize = data['server']['windowSize']
 
 
 

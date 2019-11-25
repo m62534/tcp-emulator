@@ -1,0 +1,3 @@
+global serverHost, serverPort, clientHost, clientPort, emulHost, emulPort
+global timeoutVal, maxRetry, windowSize
+global sockObjServer, sockObjClient
