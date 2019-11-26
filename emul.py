@@ -5,6 +5,8 @@ from socket import *
 import json
 import logging
 import random
+import threading
+from fractions import Fraction
 
 
 # server: 172.31.29.103
@@ -19,7 +21,7 @@ def main():
     setLoglevel(loglevel)
 
     # Assign values to global vars
-    global serverHost, serverPort, clientHost, clientPort, emulHost, emulPort
+    global serverHost, serverPort, clientHost, clientPort, emulHost, emulPort, emulClientRecvPort
     serverHost = myConfig.serverHost
     serverPort = myConfig.serverPort
     clientHost = myConfig.clientHost
@@ -35,51 +37,63 @@ def main():
     sockObjServer = socket(AF_INET, SOCK_DGRAM)
     sockObjServer.bind((emulHost, emulServerRecvPort))
 
+    global forwardSocket, BERS, BERC
     forwardSocket = socket(AF_INET, SOCK_DGRAM)
+    BERS = myConfig.BERS
+    BERC = myConfig.BERC
 
-    BER = myConfig.BER
+    # sockObjEmul.setblocking(0)
+    # sockObjServer.setblocking(0)
 
+    threads = []
+    clientThread = threading.Thread(target=clientBER)
+    serverThread = threading.Thread(target=serverBER)
+    threads = [clientThread, serverThread]
+    for i in threads:
+        i.start()
+    
+
+    return 0
+
+
+def clientBER():
+    clientDropCount = 0
+    clientCount = 0
     while True:
+        logging.debug('Starting')
         clientBER = random.randint(1, 101)
         print("Listening on port: ", emulClientRecvPort)
         data, addr = sockObjEmul.recvfrom(4096)
-        if clientBER < BER:
+        clientCount = clientCount + 1
+        if clientBER <= BERC:
+            clientDropCount = clientDropCount + 1
             print("Skipping client")
             continue
-        print("Forwarding data to server")
-        #time.sleep(packetDelay)
-        forwardSocket.sendto(data, (serverHost, serverPort))
-        print("Forwarded data sent")
-        while True:
-            serverBER = random.randint(1, 101)
-            data, addr = sockObjServer.recvfrom(4096)
-            if serverBER < BER:
-                print("Skipping server")
-                break
-            if data:
-                jsonObj = json.loads(data.decode("utf-8"))
-                responseType = jsonObj[0]['packetType']
-                if responseType == 'skip':
-                    break
-                print("Forwarding data to client")
-                #time.sleep(packetDelay)
-                forwardSocket.sendto(data, (clientHost, clientPort))
-                break
+        if data:
+            print("Forwarding data to server")
+            forwardSocket.sendto(data, (serverHost, serverPort))
+        clientRatio = Fraction(clientDropCount, clientCount)
+        print("Client Drop Status so far: ", clientRatio, "=", format(round((float(clientRatio) * 100),2)), "Percent")
+        logging.debug('exiting')
 
-    return 0
-
-    '''
-    need following initializations
-        listening for server.
-        listening for client.
-    '''
-
-def noise(percentDrop):
-    return 0
-    '''
-    receive percent to drop
-    also increment packetCounter after drop
-    '''
+def serverBER():
+    serverDropCount = 0
+    serverCount = 0
+    while True:
+        logging.debug('Starting')
+        serverBER = random.randint(1, 101)
+        data, addr = sockObjServer.recvfrom(4096)
+        serverCount = serverCount + 1
+        if serverBER <= BERS:
+            serverDropCount = serverDropCount + 1
+            print("Skipping server")
+            continue
+        if data:
+            print("Forwarding data to client")
+            forwardSocket.sendto(data, (clientHost, clientPort))
+        serverRatio = Fraction(serverDropCount, serverCount)
+        print("Client Drop Status so far: ", serverRatio, "=", format(round((float(serverRatio) * 100),2)), "Percent")
+        logging.debug('exiting')
 
 class configObject:
     def __init__(self, configFile):
@@ -94,7 +108,8 @@ class configObject:
             self.loglevel = data['client']['loglevel']
             self.timeoutVal = data['client']['timeoutVal']
             self.maxRetry = data['client']['maxRetry']
-            self.BER = data['BER']
+            self.BERS = data['BERS']
+            self.BERC = data['BERC']
 
 # Set Logging
 def setLoglevel(loglevel):
@@ -106,21 +121,10 @@ def setLoglevel(loglevel):
         "debug": logging.DEBUG,
         "notset": logging.NOTSET
     }
-    logging.basicConfig(filename='client.log', level=loglevels[loglevel])
-
-# class packetObject:
-#     packetType = ""
-#     seqNum = 0
-#     data = 0
-#     windowSize = 0
-#     ackNum = 0
-
-#     def __init__(self, packetType, seqNum, data, windowSize, ackNum):
-#         self.packetType = packetType
-#         self.seqNum = seqNum
-#         self.data = data
-#         self.windowSize = windowSize
-#         self.ackNum
+    # logging.basicConfig(filename='client.log', level=loglevels[loglevel])
+    logging.basicConfig(level=logging.DEBUG,
+                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
+                    )
 
 if __name__ == "__main__":
     main()

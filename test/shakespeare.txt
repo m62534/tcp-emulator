@@ -1,0 +1,319 @@
+     1	SCENE I. Athens. The palace of THESEUS.
+     2	Enter THESEUS, HIPPOLYTA, PHILOSTRATE, and Attendants
+     3	THESEUS
+     4	Now, fair Hippolyta, our nuptial hour
+     5	Draws on apace; four happy days bring in
+     6	Another moon: but, O, methinks, how slow
+     7	This old moon wanes! she lingers my desires,
+     8	Like to a step-dame or a dowager
+     9	Long withering out a young man revenue.
+    10	HIPPOLYTA
+    11	Four days will quickly steep themselves in night;
+    12	Four nights will quickly dream away the time;
+    13	And then the moon, like to a silver bow
+    14	New-bent in heaven, shall behold the night
+    15	Of our solemnities.
+    16	THESEUS
+    17	Go, Philostrate,
+    18	Stir up the Athenian youth to merriments;
+    19	Awake the pert and nimble spirit of mirth;
+    20	Turn melancholy forth to funerals;
+    21	The pale companion is not for our pomp.
+    22	Exit PHILOSTRATE
+    23	
+    24	Hippolyta, I woo'd thee with my sword,
+    25	And won thy love, doing thee injuries;
+    26	But I will wed thee in another key,
+    27	With pomp, with triumph and with revelling.
+    28	Enter EGEUS, HERMIA, LYSANDER, and DEMETRIUS
+    29	
+    30	EGEUS
+    31	Happy be Theseus, our renowned duke!
+    32	THESEUS
+    33	Thanks, good Egeus: what's the news with thee?
+    34	EGEUS
+    35	Full of vexation come I, with complaint
+    36	Against my child, my daughter Hermia.
+    37	Stand forth, Demetrius. My noble lord,
+    38	This man hath my consent to marry her.
+    39	Stand forth, Lysander: and my gracious duke,
+    40	This man hath bewitch'd the bosom of my child;
+    41	Thou, thou, Lysander, thou hast given her rhymes,
+    42	And interchanged love-tokens with my child:
+    43	Thou hast by moonlight at her window sung,
+    44	With feigning voice verses of feigning love,
+    45	And stolen the impression of her fantasy
+    46	With bracelets of thy hair, rings, gawds, conceits,
+    47	Knacks, trifles, nosegays, sweetmeats, messengers
+    48	Of strong prevailment in unharden'd youth:
+    49	With cunning hast thou filch'd my daughter's heart,
+    50	Turn'd her obedience, which is due to me,
+    51	To stubborn harshness: and, my gracious duke,
+    52	Be it so she; will not here before your grace
+    53	Consent to marry with Demetrius,
+    54	I beg the ancient privilege of Athens,
+    55	As she is mine, I may dispose of her:
+    56	Which shall be either to this gentleman
+    57	Or to her death, according to our law
+    58	Immediately provided in that case.
+    59	THESEUS
+    60	What say you, Hermia? be advised fair maid:
+    61	To you your father should be as a god;
+    62	One that composed your beauties, yea, and one
+    63	To whom you are but as a form in wax
+    64	By him imprinted and within his power
+    65	To leave the figure or disfigure it.
+    66	Demetrius is a worthy gentleman.
+    67	HERMIA
+    68	So is Lysander.
+    69	THESEUS
+    70	In himself he is;
+    71	But in this kind, wanting your father's voice,
+    72	The other must be held the worthier.
+    73	HERMIA
+    74	I would my father look'd but with my eyes.
+    75	THESEUS
+    76	Rather your eyes must with his judgment look.
+    77	HERMIA
+    78	I do entreat your grace to pardon me.
+    79	I know not by what power I am made bold,
+    80	Nor how it may concern my modesty,
+    81	In such a presence here to plead my thoughts;
+    82	But I beseech your grace that I may know
+    83	The worst that may befall me in this case,
+    84	If I refuse to wed Demetrius.
+    85	THESEUS
+    86	Either to die the death or to abjure
+    87	For ever the society of men.
+    88	Therefore, fair Hermia, question your desires;
+    89	Know of your youth, examine well your blood,
+    90	Whether, if you yield not to your father's choice,
+    91	You can endure the livery of a nun,
+    92	For aye to be in shady cloister mew'd,
+    93	To live a barren sister all your life,
+    94	Chanting faint hymns to the cold fruitless moon.
+    95	Thrice-blessed they that master so their blood,
+    96	To undergo such maiden pilgrimage;
+    97	But earthlier happy is the rose distill'd,
+    98	Than that which withering on the virgin thorn
+    99	Grows, lives and dies in single blessedness.
+   100	HERMIA
+   101	So will I grow, so live, so die, my lord,
+   102	Ere I will my virgin patent up
+   103	Unto his lordship, whose unwished yoke
+   104	My soul consents not to give sovereignty.
+   105	THESEUS
+   106	Take time to pause; and, by the next new moon--
+   107	The sealing-day betwixt my love and me,
+   108	For everlasting bond of fellowship--
+   109	Upon that day either prepare to die
+   110	For disobedience to your father's will,
+   111	Or else to wed Demetrius, as he would;
+   112	Or on Diana's altar to protest
+   113	For aye austerity and single life.
+   114	DEMETRIUS
+   115	Relent, sweet Hermia: and, Lysander, yield
+   116	Thy crazed title to my certain right.
+   117	LYSANDER
+   118	You have her father's love, Demetrius;
+   119	Let me have Hermia's: do you marry him.
+   120	EGEUS
+   121	Scornful Lysander! true, he hath my love,
+   122	And what is mine my love shall render him.
+   123	And she is mine, and all my right of her
+   124	I do estate unto Demetrius.
+   125	LYSANDER
+   126	I am, my lord, as well derived as he,
+   127	As well possess'd; my love is more than his;
+   128	My fortunes every way as fairly rank'd,
+   129	If not with vantage, as Demetrius';
+   130	And, which is more than all these boasts can be,
+   131	I am beloved of beauteous Hermia:
+   132	Why should not I then prosecute my right?
+   133	Demetrius, I'll avouch it to his head,
+   134	Made love to Nedar's daughter, Helena,
+   135	And won her soul; and she, sweet lady, dotes,
+   136	Devoutly dotes, dotes in idolatry,
+   137	Upon this spotted and inconstant man.
+   138	THESEUS
+   139	I must confess that I have heard so much,
+   140	And with Demetrius thought to have spoke thereof;
+   141	But, being over-full of self-affairs,
+   142	My mind did lose it. But, Demetrius, come;
+   143	And come, Egeus; you shall go with me,
+   144	I have some private schooling for you both.
+   145	For you, fair Hermia, look you arm yourself
+   146	To fit your fancies to your father's will;
+   147	Or else the law of Athens yields you up--
+   148	Which by no means we may extenuate--
+   149	To death, or to a vow of single life.
+   150	Come, my Hippolyta: what cheer, my love?
+   151	Demetrius and Egeus, go along:
+   152	I must employ you in some business
+   153	Against our nuptial and confer with you
+   154	Of something nearly that concerns yourselves.
+   155	EGEUS
+   156	With duty and desire we follow you.
+   157	Exeunt all but LYSANDER and HERMIA
+   158	
+   159	LYSANDER
+   160	How now, my love! why is your cheek so pale?
+   161	How chance the roses there do fade so fast?
+   162	HERMIA
+   163	Belike for want of rain, which I could well
+   164	Beteem them from the tempest of my eyes.
+   165	LYSANDER
+   166	Ay me! for aught that I could ever read,
+   167	Could ever hear by tale or history,
+   168	The course of true love never did run smooth;
+   169	But, either it was different in blood,--
+   170	HERMIA
+   171	O cross! too high to be enthrall'd to low.
+   172	LYSANDER
+   173	Or else misgraffed in respect of years,--
+   174	HERMIA
+   175	O spite! too old to be engaged to young.
+   176	LYSANDER
+   177	Or else it stood upon the choice of friends,--
+   178	HERMIA
+   179	O hell! to choose love by another's eyes.
+   180	LYSANDER
+   181	Or, if there were a sympathy in choice,
+   182	War, death, or sickness did lay siege to it,
+   183	Making it momentany as a sound,
+   184	Swift as a shadow, short as any dream;
+   185	Brief as the lightning in the collied night,
+   186	That, in a spleen, unfolds both heaven and earth,
+   187	And ere a man hath power to say 'Behold!'
+   188	The jaws of darkness do devour it up:
+   189	So quick bright things come to confusion.
+   190	HERMIA
+   191	If then true lovers have been ever cross'd,
+   192	It stands as an edict in destiny:
+   193	Then let us teach our trial patience,
+   194	Because it is a customary cross,
+   195	As due to love as thoughts and dreams and sighs,
+   196	Wishes and tears, poor fancy's followers.
+   197	LYSANDER
+   198	A good persuasion: therefore, hear me, Hermia.
+   199	I have a widow aunt, a dowager
+   200	Of great revenue, and she hath no child:
+   201	From Athens is her house remote seven leagues;
+   202	And she respects me as her only son.
+   203	There, gentle Hermia, may I marry thee;
+   204	And to that place the sharp Athenian law
+   205	Cannot pursue us. If thou lovest me then,
+   206	Steal forth thy father's house to-morrow night;
+   207	And in the wood, a league without the town,
+   208	Where I did meet thee once with Helena,
+   209	To do observance to a morn of May,
+   210	There will I stay for thee.
+   211	HERMIA
+   212	My good Lysander!
+   213	I swear to thee, by Cupid's strongest bow,
+   214	By his best arrow with the golden head,
+   215	By the simplicity of Venus' doves,
+   216	By that which knitteth souls and prospers loves,
+   217	And by that fire which burn'd the Carthage queen,
+   218	When the false Troyan under sail was seen,
+   219	By all the vows that ever men have broke,
+   220	In number more than ever women spoke,
+   221	In that same place thou hast appointed me,
+   222	To-morrow truly will I meet with thee.
+   223	LYSANDER
+   224	Keep promise, love. Look, here comes Helena.
+   225	Enter HELENA
+   226	
+   227	HERMIA
+   228	God speed fair Helena! whither away?
+   229	HELENA
+   230	Call you me fair? that fair again unsay.
+   231	Demetrius loves your fair: O happy fair!
+   232	Your eyes are lode-stars; and your tongue's sweet air
+   233	More tuneable than lark to shepherd's ear,
+   234	When wheat is green, when hawthorn buds appear.
+   235	Sickness is catching: O, were favour so,
+   236	Yours would I catch, fair Hermia, ere I go;
+   237	My ear should catch your voice, my eye your eye,
+   238	My tongue should catch your tongue's sweet melody.
+   239	Were the world mine, Demetrius being bated,
+   240	The rest I'd give to be to you translated.
+   241	O, teach me how you look, and with what art
+   242	You sway the motion of Demetrius' heart.
+   243	HERMIA
+   244	I frown upon him, yet he loves me still.
+   245	HELENA
+   246	O that your frowns would teach my smiles such skill!
+   247	HERMIA
+   248	I give him curses, yet he gives me love.
+   249	HELENA
+   250	O that my prayers could such affection move!
+   251	HERMIA
+   252	The more I hate, the more he follows me.
+   253	HELENA
+   254	The more I love, the more he hateth me.
+   255	HERMIA
+   256	His folly, Helena, is no fault of mine.
+   257	HELENA
+   258	None, but your beauty: would that fault were mine!
+   259	HERMIA
+   260	Take comfort: he no more shall see my face;
+   261	Lysander and myself will fly this place.
+   262	Before the time I did Lysander see,
+   263	Seem'd Athens as a paradise to me:
+   264	O, then, what graces in my love do dwell,
+   265	That he hath turn'd a heaven unto a hell!
+   266	LYSANDER
+   267	Helen, to you our minds we will unfold:
+   268	To-morrow night, when Phoebe doth behold
+   269	Her silver visage in the watery glass,
+   270	Decking with liquid pearl the bladed grass,
+   271	A time that lovers' flights doth still conceal,
+   272	Through Athens' gates have we devised to steal.
+   273	HERMIA
+   274	And in the wood, where often you and I
+   275	Upon faint primrose-beds were wont to lie,
+   276	Emptying our bosoms of their counsel sweet,
+   277	There my Lysander and myself shall meet;
+   278	And thence from Athens turn away our eyes,
+   279	To seek new friends and stranger companies.
+   280	Farewell, sweet playfellow: pray thou for us;
+   281	And good luck grant thee thy Demetrius!
+   282	Keep word, Lysander: we must starve our sight
+   283	From lovers' food till morrow deep midnight.
+   284	LYSANDER
+   285	I will, my Hermia.
+   286	Exit HERMIA
+   287	
+   288	Helena, adieu:
+   289	As you on him, Demetrius dote on you!
+   290	Exit
+   291	
+   292	HELENA
+   293	How happy some o'er other some can be!
+   294	Through Athens I am thought as fair as she.
+   295	But what of that? Demetrius thinks not so;
+   296	He will not know what all but he do know:
+   297	And as he errs, doting on Hermia's eyes,
+   298	So I, admiring of his qualities:
+   299	Things base and vile, folding no quantity,
+   300	Love can transpose to form and dignity:
+   301	Love looks not with the eyes, but with the mind;
+   302	And therefore is wing'd Cupid painted blind:
+   303	Nor hath Love's mind of any judgement taste;
+   304	Wings and no eyes figure unheedy haste:
+   305	And therefore is Love said to be a child,
+   306	Because in choice he is so oft beguiled.
+   307	As waggish boys in game themselves forswear,
+   308	So the boy Love is perjured every where:
+   309	For ere Demetrius look'd on Hermia's eyne,
+   310	He hail'd down oaths that he was only mine;
+   311	And when this hail some heat from Hermia felt,
+   312	So he dissolved, and showers of oaths did melt.
+   313	I will go tell him of fair Hermia's flight:
+   314	Then to the wood will he to-morrow night
+   315	Pursue her; and for this intelligence
+   316	If I have thanks, it is a dear expense:
+   317	But herein mean I to enrich my pain,
+   318	To have his sight thither and back again.
+   319	Exit

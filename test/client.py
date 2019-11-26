@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import sys
 import time
-import pickle
 from socket import *
 import json
 import base64
@@ -17,7 +16,7 @@ def main():
 
     #fx, listOfFiles = argVerify(sys.argv)
     #print("verified fx: %s" % fx)
-    filename = 'plan.txt'
+    filename = 'shakespeare.txt'
 
     # load Config
     myConfig = configObject('../config.json')
@@ -34,7 +33,7 @@ def main():
     emulHost = myConfig.emulHost
     emulPort = myConfig.emulPort
 
-    global timeoutVal, maxRetry, windowSize
+    global timeoutVal, maxRetry
     timeoutVal = myConfig.timeoutVal
     maxRetry = myConfig.maxRetry
     windowSize = myConfig.windowSize
@@ -47,7 +46,7 @@ def main():
     sockObjClient.settimeout(timeoutVal)
 
     # Handle send and conditions
-    sendHandler(filename)
+    sendHandler(filename, windowSize)
 
     #close the connection
     sockObjEmul.close()
@@ -109,7 +108,7 @@ def setLoglevel(loglevel):
 
 # Main function for handling the sends.
 # Uses 3 sub functions: initialHandshake, dataTransfer, closingHandshake
-def sendHandler(filename):
+def sendHandler(filename, windowSize):
     # Packet metadata initiaize
     maxSeq = 2**32 - 1
 
@@ -117,10 +116,15 @@ def sendHandler(filename):
     seqNum = randint(0, maxSeq)
     ackNum = 0
     dataArray = dataArrayer(filename)
+    print("windowSize: ", windowSize)
+    print("Array length: ", len(dataArray))
+    if windowSize > len(dataArray):
+        windowSize = len(dataArray)
+        
 
     # Controls the initial 3-way handshkae mechanism
     def initialHandshake():
-        nonlocal filename, seqNum, ackNum
+        nonlocal filename, seqNum, ackNum, windowSize
         jsonObj = ''
         responseType = ''
         responseAckNum = ''
@@ -128,6 +132,7 @@ def sendHandler(filename):
         retryCounter = 0
         
         while packetReceived == False and retryCounter < maxRetry:
+            print("sent first seqNum: ", seqNum)
             outboundPacket = generatePacket(filename, "syn", seqNum, b''.hex(), windowSize, ackNum, "3way-handshake")
             sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulPort))
             logging.info("Handshake: Sent SYN...")
@@ -142,72 +147,107 @@ def sendHandler(filename):
                     if (responseType.lower() == 'synack' and responseAckNum  == expectAckNum):
                         logging.info("Handshake: Sending ack to synack")
                         print("received synack")
+                        seqNum = seqNum + 1
+                        print("sent second seqNum: ", seqNum)
+                        logging.info("Handshake: Received SYNACK... Sending the final Ack")
                         outboundPacket = generatePacket(filename, "ack", seqNum, b''.hex(), windowSize, ackNum, "3way-handshake")
                         sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(emulHost, emulPort))
-                        packetReceived = True
-                        logging.info("Handshake: Received SYNACK... Sending the final Ack")
+                        packetReceived = True 
                         retryCounter = 0 # Reset
                         break
                     else:
                         print("Handshake: Received: ", responseType.lower())
+                        retryCounter =  retryCounter + 1
                         
             except timeout:
                 print("Initial Handshake: Socket Timeout, Retrying...")
                 logging.error("Initial Handshake: Socket Timeout, Retrying...")
-            
-            retryCounter = retryCounter + 1
+                retryCounter = retryCounter + 1
         
         return seqNum, packetReceived
 
     # Receives dataArray, transfers data
     def dataTransfer():
-        nonlocal filename, seqNum , dataArray, ackNum
+        nonlocal filename, seqNum , dataArray, ackNum, windowSize
         jsonObj = ''
         responseType = ''
         counter = 0
-        backupSeqNum = seqNum # for testing
-        retryCounter = 0
+        retryCounter = -1
 
         logging.info("======================")
         logging.info("starting data transfer")
 
         # Initial window loader
         slidingWindow = []
+        
         while len(slidingWindow) < windowSize:
-            windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "transferring")
-            
+            print("length of Sliding Window: ", len(slidingWindow))
+            print("seqNum for first window: ", seqNum)
+            if counter < len(dataArray) - 1:
+                windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "transferring")
+            elif counter == len(dataArray) - 1:
+                windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "eof")
             slidingWindow.append(windowObject)
             seqNum = seqNum + len(dataArray[counter]) # assigns value of next sequence #
             counter = counter + 1
 
-        counter = 0 # for testing
-        seqNum = backupSeqNum # for testing
+        
+        print("this is total length of dataArray: ", len(dataArray))
+        print("This is current counter: ", counter)
+
+
+        #counter = 0 # for testing
         endOfFile = False
 
         while not len(slidingWindow) == 0 and retryCounter < maxRetry:
-            if not retryCounter == 0:
-                for x in slidingWindow:
-                    sockObjEmul.sendto(bytes(json.dumps(x), "utf-8"),(emulHost, emulPort))
-            elif endOfFile: 
+            print("==================")
+            print("Current Counter: ", counter)
+            print("current RetryCounter: ", retryCounter)
+            if not retryCounter == 0: #and not endOfFile:
+                print("=======")
+                print("Length of window: ", len(slidingWindow))
+                if retryCounter == -1:
+                    retryCounter = 0
+                # testing start
+                sockObjEmul.sendto(bytes(json.dumps(slidingWindow[0]), "utf-8"),(emulHost, emulPort))
+                # testing end
+                # for x in slidingWindow: 
+                #     print("slidingWindow round:", x[0]['seqNum'])
+                #     sockObjEmul.sendto(bytes(json.dumps(x), "utf-8"),(emulHost, emulPort))
+                print("=======")
+
+            elif counter < len(dataArray) and not endOfFile:
+                print("== slidingWindow prior to send of last in list ==")
+                for i in slidingWindow:
+                    print("  element: ", i[0]['seqNum'])
+                print("slidingWindow round: Sliding: ", slidingWindow[-1][0]['seqNum'])
                 sockObjEmul.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(emulHost, emulPort))
-                break
-            else:
-                sockObjEmul.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(emulHost, emulPort))
+                seqNum = seqNum + len(dataArray[counter])
+                counter = counter + 1
+            
+            elif endOfFile: #and not len(slidingWindow) == 0:
+                print("== End of file ====================")
+                for i in slidingWindow:
+                    print("  element: ", i[0]['seqNum'])
+                if len(slidingWindow) == windowSize:
+                    print("slidingWindow round: endOfFile: ", slidingWindow[-1][0]['seqNum'])
+                    sockObjEmul.sendto(bytes(json.dumps(slidingWindow[-1]), "utf-8"),(emulHost, emulPort))
+                    print("=======")
 
 
             try:
+                print("Waiting for Ack")
                 data, address = sockObjClient.recvfrom(4096)
                 if data:
-
                     expectAckNum = slidingWindow[0][0]['seqNum'] + len(bytes.fromhex(slidingWindow[0][0]['data']))
 
                     # print current state
                     logging.debug("===")
-                    logging.debug("counter: %s" % counter)
-                    logging.info("  Sent data size: %s" % len(dataArray[counter]))
                     jsonObj = json.loads(data.decode("utf-8"))
                     responseType = jsonObj[0]['packetType']
                     responseAckNum = jsonObj[0]['ackNum']
+                    print("Received Ack: ", responseAckNum)
+                    print("Expected Ack: ", expectAckNum)
                     logging.debug("  Sent seqNum:  %s" % seqNum)
                     logging.debug("  expectAckNum: %s" % expectAckNum)
                     logging.debug("  responseAcknum: %s" % responseAckNum)
@@ -218,22 +258,46 @@ def sendHandler(filename):
                     # (for sliding window) if expected, then need to increment
                     if (responseType.lower() == 'ack' and responseAckNum  == expectAckNum):
                         # pop the first object in list, so new one can go in
-                        slidingWindow.pop(0)
-                        counter = counter + 1
-
-                        if counter == len(dataArray) - 1:
-                            windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "eof")
-                            slidingWindow.append(windowObject)
-                            endOfFile = True
-                            print(len(slidingWindow))
-                            print("End of File")
-                        else:
-                            windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "transferring")
-                            slidingWindow.append(windowObject)
-
+                        if not len(slidingWindow) == 0:
+                            print("== Currently in slidingWindow ==")
+                            for i in slidingWindow:
+                                print("  Element: ", i[0]['seqNum'])
+                            print("  Popping seq :", slidingWindow[0][0]['seqNum'])
+                            slidingWindow.pop(0)
+                            if len(slidingWindow) == 0 and windowSize > 1:
+                                seqNum = responseAckNum
+                                print("Received Last ack")
+                                break
+                            elif len(slidingWindow) == 0 and endOfFile:
+                                seqNum = responseAckNum
+                                print("Received Last ack")
+                                break
+                        
+                        if not endOfFile:
+                            if counter == len(dataArray) - 1:
+                                print("last sequence: ", seqNum)
+                                windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "eof")
+                                slidingWindow.append(windowObject)
+                                print("== slidingWindow after Append (eof) ==")
+                                for i in slidingWindow:
+                                    print("  element: ", i[0]['seqNum'])
+                                endOfFile = True
+                                print("End of File")
+                            elif counter > len(dataArray) -1:
+                                retryCounter = 0
+                                continue
+                            else:
+                                print("Current Counter: ", counter)
+                                windowObject = generatePacket(filename, "ack", seqNum, dataArray[counter].hex(), windowSize, ackNum, "transferring")
+                                slidingWindow.append(windowObject)
+                                print("== slidingWindow after Append (transferring) ==")
+                                for i in slidingWindow:
+                                    print("  element: ", i[0]['seqNum'])
+                    
                         retryCounter = 0 # Reset counter
                     else:
                         retryCounter = retryCounter + 1
+                    print("==================")
                 else:
                     logging.error("No data")
                     retryCounter = retryCounter + 1
@@ -245,14 +309,17 @@ def sendHandler(filename):
                 retryCounter = retryCounter + 1
         logging.info("Finished data transfer")
         logging.info("======================")
+        #seqNum = responseAckNum
 
         return seqNum
     
     # Controls fin finack ack handshake
     def closingHandshake():
-        nonlocal filename, seqNum, ackNum
+        nonlocal filename, seqNum, ackNum, windowSize
         jsonObj = ''
         packetReceived = False
+        print("starting fin handshake")
+        print("current seqNum: ", seqNum)
         
         retryCounter = 0
         while packetReceived == False and retryCounter < maxRetry:
@@ -272,12 +339,12 @@ def sendHandler(filename):
                         outboundPacket = generatePacket(filename, "ack", seqNum, b''.hex(), windowSize, ackNum, "fin-handshake")
                         sockObjEmul.sendto(bytes(json.dumps(outboundPacket), "utf-8"),(serverHost, serverPort))
                         logging.debug("i sent the ack to the finack")
+                        print("fin handshake Complete.")
                         break
                     else:
                         logging.error("fin issue")
                         retryCounter = retryCounter + 1
             except timeout:
-                print("Fin Handshake: Socket Timeout, Retrying...")
                 logging.error("Fin handshake: Socket Timeout, Retrying...")
                 retryCounter = retryCounter + 1
     
