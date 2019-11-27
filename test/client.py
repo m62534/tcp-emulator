@@ -16,7 +16,7 @@ def main():
 
     #fx, listOfFiles = argVerify(sys.argv)
     #print("verified fx: %s" % fx)
-    filename = 'shakespeare.txt'
+    filename = input("Which file would you like to transfer? ")
 
     # load Config
     myConfig = configObject('../config.json')
