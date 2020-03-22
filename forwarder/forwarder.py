@@ -83,8 +83,6 @@ def forwarder():
                     finalConn.connect((finalHost, finalPort))
                     finalConn.setblocking(0)
                     final_fd = finalConn.fileno()
-                    print("Client fd: ", client_fd)
-                    print("Final fd: ", final_fd)
                     
                     ## Register final host conn to track
                     epol.register(final_fd, select.EPOLLIN)
@@ -93,10 +91,16 @@ def forwarder():
 
                     ## Added to limbo dict
                     limbo[client_fd], limbo[final_fd] = finalConn, clientConn
+                    
+                    ## testing
+                    print(connections[client_fd])
+                    print(connections[final_fd])
+
 
                 elif event & select.EPOLLIN:
                     # Forward data
                     buffer = connections[fd].recv(1024)
+                    print(buffer)
                     connections[fd].send(buffer)
 
                 elif event & select.EPOLLHUP:
