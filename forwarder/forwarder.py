@@ -63,11 +63,11 @@ def forwarder():
     try:
         while True:
 
-            print("top of loop")
             events = epol.poll(1)
 
             for fd, event in events:
                 if fd == serverSock_fd:
+                    print("new Connection")
                     # initialize connection with client
                     clientConn, _ = serverSock.accept()
                     clientConn.setblocking(0)
@@ -100,6 +100,7 @@ def forwarder():
 
                 elif event & select.EPOLLIN:
                     # Forward data
+                    print("reading data")
                     buffer = connections[fd].recv(1024)
                     print(buffer)
                     connections[fd].send(buffer)
