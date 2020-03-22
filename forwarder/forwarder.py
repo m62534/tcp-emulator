@@ -63,6 +63,7 @@ def forwarder():
     try:
         while True:
 
+            print("top of loop")
             events = epol.poll(1)
 
             for fd, event in events:
