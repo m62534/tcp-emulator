@@ -95,7 +95,9 @@ def forwarder():
                 elif event & select.EPOLLIN:
                     # Forward data
                     try:
-                        connections[fd].send(connections[fd].recv(1024))
+                        buffer = connections[fd].recv(1024)
+                        destSock = connections[fd]
+                        destSock.send(buffer)
                     except Exception as e:
                         logging.exception('')
                         return
