@@ -50,7 +50,6 @@ def forwarder():
     serverSock.bind((serverHost, serverPort))
     serverSock.listen(5)
     serverSock.setblocking(0) # non-blocking
-    serverSock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     # Instantiate
     connections, serverSock_fd = {}, serverSock.fileno()
