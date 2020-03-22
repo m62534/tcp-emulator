@@ -73,7 +73,7 @@ def forwarder():
                 # Register client conn to track
                 e.register(client_fd, select.EPOLLIN) # Switch to reading
                 connections[client_fd] = clientConn
-                logging.info("Craeated connection for client")
+                print("Craeated connection for client")
 
 
                 ## send connection request to FINAL host (Store state somewhere. possibly another dict)
@@ -85,7 +85,7 @@ def forwarder():
                 ## Register final host conn to track
                 e.register(finalConn.fileno(), select.EPOLLIN)
                 connections[final_fd] = finalConn
-                logging.info("Craeated connection to final dest")
+                print("Craeated connection to final dest")
 
                 ## Added to limbo dict
                 ## Should not conflict
@@ -95,19 +95,19 @@ def forwarder():
             elif event & select.EPOLLIN:
                 # save buffer
                 received = connections[fd].recv(1024) # 2048?
-                logging.info("received data")
+                print("received data")
 
                 # Forward buffer
                 connections[fd].send(received)
 
             elif event & select.EPOLLHUP | select.EPOLLERR:
                 # deregister
-                logging.info("deregistering...")
+                print("deregistering...")
                 e.unregister(limbo[fd])
                 e.unregister(fd)
 
                 # close
-                logging.info("closing...")
+                print("closing...")
                 connections[limbo[fd]].close()
                 connections[fd].close()
                 
