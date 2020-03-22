@@ -58,26 +58,45 @@ def forwarder():
         events = e.poll(1)
         for fd, event in events:
             if fd == serverSock_fd:
-                # initialize connection
+                # initialize connection with client
+
+                ## send connection request to FINAL host (Store state somewhere. possibly another dict)
                 clientConn, clientAddr = serverSock.accept()
                 clientConn.setblocking(0)
-                client_fd = connection.fileno()
-                e.register(client_fd, select.EPOLLIN)
+                client_fd = clientConn.fileno()
+                e.register(client_fd, select.EPOLLIN) # Switch to reading
                 connections[client_fd] = clientConn
-                
-                #override old fd
+
+                # Empty old connection socket, also from FINAL host tracker
                 requests[client_fd] = ''
                 responses[client_fd] = ''
 
             elif event & select.EPOLLIN:
-                requests[fd] += connections[fd].recv(8) # add new connection with 8 byte buffer size
-                if requests[fd] == 'quit\n' or requests[fd] == '': #Delete connection
-                    
-                elif '\n' in requests[fd]:
-                    
-            elif event & select.EPOLLOUT:
-                # Send response 
 
+                requests[fd] += connections[fd].recv(8) # What should recv be for ssh?
+                
+                # some condition for closing connection (what would it be for ssh?)
+                if requests[fd] == '':
+                    # delete connection
+                    e.unregister(fd)
+                    connections[fd].close()
+                    del connections[fd], requests[fd], responses[fd]
+                    ##  send connection close for FINAL host, remove from tracker
+
+
+                #Specify condition for reading (may not need one)
+                else: 
+                    e.modify(fd, select.EPOLLOUT) # Flip to writing
+                    print("more requests coming in. Forwarding")
+
+            # send response back to original client
+            elif event & select.EPOLLOUT:
+                written = connections[fd].send(responses[fd])
+                responses[fd] = responses[fd][written:]
+                e.modify(fd, select.EPOLLIN) # Flip to reading
+
+            elif event & select.EPOLLHUP:
+                # close
 
 if __name__ == "__main__":
     main()
