@@ -75,7 +75,7 @@ def forwarder():
                     # Register client conn to track
                     epol.register(client_fd, select.EPOLLIN) # Switch to reading
                     connections[client_fd] = clientConn
-                    print("Craeated connection for client")
+                    print("Created connection for client")
 
 
                     ## send connection request to FINAL host (Store state somewhere. possibly another dict)
@@ -83,21 +83,21 @@ def forwarder():
                     finalConn.connect((finalHost, finalPort))
                     finalConn.setblocking(0)
                     final_fd = finalConn.fileno()
-
+                    print("Client fd: ", client_fd)
+                    print("Final fd: ", final_fd)
+                    
                     ## Register final host conn to track
                     epol.register(final_fd, select.EPOLLIN)
                     connections[final_fd] = finalConn
-                    print("Craeated connection to final dest")
+                    print("Created connection to final dest")
 
                     ## Added to limbo dict
                     limbo[client_fd], limbo[final_fd] = finalConn, clientConn
 
                 elif event & select.EPOLLIN:
                     # Forward data
-                    connections[fd].send(connections[fd].recv(1024))
-
-                elif event & select.EPOLLOUT:
-                    pass
+                    buffer = connections[fd].recv(1024)
+                    connections[fd].send(buffer)
 
                 elif event & select.EPOLLHUP:
                     # deregister
