@@ -39,10 +39,10 @@ def forwarder():
     serverSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Create epoll object
-    e = select.epoll()
+    epol = select.epoll()
 
     # Associate with server socket file descriptor to the epoll object
-    e.register(serverSock.fileno(), select.EPOLLIN)
+    epol.register(serverSock.fileno(), select.EPOLLIN)
     print("server associated with epoll object")
 
     
@@ -62,7 +62,7 @@ def forwarder():
 
     # Continue listening
     while True:
-        events = e.poll(1)
+        events = epol.poll(1)
         for fd, event in events:
             if fd == serverSock_fd:
                 # initialize connection with client
@@ -71,7 +71,7 @@ def forwarder():
                 client_fd = clientConn.fileno()
 
                 # Register client conn to track
-                e.register(client_fd, select.EPOLLIN) # Switch to reading
+                epol.register(client_fd, select.EPOLLIN) # Switch to reading
                 connections[client_fd] = clientConn
                 print("Craeated connection for client")
 
@@ -83,7 +83,7 @@ def forwarder():
                 final_fd = finalConn.fileno()
 
                 ## Register final host conn to track
-                e.register(finalConn.fileno(), select.EPOLLIN)
+                epol.register(finalConn.fileno(), select.EPOLLIN)
                 connections[final_fd] = finalConn
                 print("Craeated connection to final dest")
 
@@ -94,8 +94,7 @@ def forwarder():
 
             elif event & select.EPOLLIN:
                 # save buffer
-                received = connections[fd].recv(1024) # 2048?
-                print("received data")
+                received = connections[fd].recv(1024)
 
                 # Forward buffer
                 connections[fd].send(received)
@@ -103,8 +102,8 @@ def forwarder():
             elif event & select.EPOLLHUP | select.EPOLLERR:
                 # deregister
                 print("deregistering...")
-                e.unregister(limbo[fd])
-                e.unregister(fd)
+                epol.unregister(limbo[fd])
+                epol.unregister(fd)
 
                 # close
                 print("closing...")
@@ -112,7 +111,10 @@ def forwarder():
                 connections[fd].close()
                 
                 # Release from dicts
-                del connections[fd], connections[limbo[fd]], limbo[fd], limbo[limbo[fd]]
+                try:
+                    del connections[fd], connections[limbo[fd]], limbo[fd], limbo[limbo[fd]]
+                except Exception as e:
+                    logging.exception('')
                 
 
 if __name__ == "__main__":
