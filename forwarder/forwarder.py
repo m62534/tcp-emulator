@@ -51,8 +51,8 @@ def forwarder():
     serverSock.setblocking(0) # non-blocking
     serverSock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-    # Instantiate 4 dicts for regular tracking
-    connections, requests, responses, serverSock_fd = {}, {}, {}, serverSock.fileno()
+    # Instantiate
+    connections, serverSock_fd = {}, serverSock.fileno()
 
     # Instantiate final dict for final host fd tracking
     limbo = {}
@@ -65,7 +65,7 @@ def forwarder():
         for fd, event in events:
             if fd == serverSock_fd:
                 # initialize connection with client
-                clientConn, clientAddr = serverSock.accept()
+                clientConn, _ = serverSock.accept()
                 clientConn.setblocking(0)
                 client_fd = clientConn.fileno()
 
@@ -87,12 +87,11 @@ def forwarder():
                 logging.info("Craeated connection to final dest")
 
                 ## Added to limbo dict
-                ## how to resolve conflict? 
-                limbo[client_fd] = finalConn # client tracks final
-                limbo[final_fd] = clientConn # final tracks client
+                ## Should not conflict
+                limbo[client_fd] = finalConn
+                limbo[final_fd] = clientConn
 
             elif event & select.EPOLLIN:
-                
                 # save buffer
                 received = connections[fd].recv(1024) # 2048?
                 logging.info("received data")
@@ -100,14 +99,20 @@ def forwarder():
                 # Forward buffer
                 connections[fd].send(received)
 
-            # send response back to original client
-            elif event & select.EPOLLOUT:
-                written = connections[fd].send(responses[fd])
-                responses[fd] = responses[fd][written:]
-                e.modify(fd, select.EPOLLIN) # Flip to reading
-
             elif event & select.EPOLLHUP | select.EPOLLERR:
+                # deregister
+                logging.info("deregistering...")
+                e.unregister(limbo[fd])
+                e.unregister(fd)
+
                 # close
+                logging.info("closing...")
+                connections[limbo[fd]].close()
+                connections[fd].close()
+                
+                # Release from dicts
+                del connections[fd], connections[limbo[fd]], limbo[fd], limbo[limbo[fd]]
+                
 
 if __name__ == "__main__":
     main()
