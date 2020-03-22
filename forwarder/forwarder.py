@@ -47,14 +47,36 @@ def forwarder():
     serverSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     serverSock.bind((serverHost, serverPort))
     serverSock.listen(5)
-    serverSock.setblocking(0)
+    serverSock.setblocking(0) # non-blocking
     serverSock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    print("Listening")
 
-    # Insta
+    # Instantiate 4 dicts
+    connections, requests, responses, serverSock_fd = {}, {}, {}, serverSock.fileno()
+    
+    # Continue listening
+    while True:
+        events = e.poll(1)
+        for fd, event in events:
+            if fd == serverSock_fd:
+                # initialize connection
+                clientConn, clientAddr = serverSock.accept()
+                clientConn.setblocking(0)
+                client_fd = connection.fileno()
+                e.register(client_fd, select.EPOLLIN)
+                connections[client_fd] = clientConn
+                
+                #override old fd
+                requests[client_fd] = ''
+                responses[client_fd] = ''
 
-
-
+            elif event & select.EPOLLIN:
+                requests[fd] += connections[fd].recv(8) # add new connection with 8 byte buffer size
+                if requests[fd] == 'quit\n' or requests[fd] == '': #Delete connection
+                    
+                elif '\n' in requests[fd]:
+                    
+            elif event & select.EPOLLOUT:
+                # Send response 
 
 
 if __name__ == "__main__":
