@@ -62,7 +62,9 @@ def forwarder():
     # Continue listening
     try:
         while True:
+
             events = epol.poll(1)
+
             for fd, event in events:
                 if fd == serverSock_fd:
                     # initialize connection with client
@@ -83,21 +85,20 @@ def forwarder():
                     final_fd = finalConn.fileno()
 
                     ## Register final host conn to track
-                    epol.register(finalConn.fileno(), select.EPOLLIN)
+                    epol.register(final_fd, select.EPOLLIN)
                     connections[final_fd] = finalConn
                     print("Craeated connection to final dest")
 
                     ## Added to limbo dict
-                    ## Should not conflict
-                    limbo[client_fd] = finalConn
-                    limbo[final_fd] = clientConn
+                    limbo[client_fd], limbo[final_fd] = finalConn, clientConn
 
                 elif event & select.EPOLLIN:
-                    # save buffer
-                    received = connections[fd].recv(1024)
-
-                    # Forward buffer
-                    connections[fd].send(received)
+                    # Forward data
+                    try:
+                        connections[fd].send(connections[fd].recv(1024))
+                    except Exception as e:
+                        logging.exception('')
+                        return
 
                 elif event & select.EPOLLOUT:
                     continue
