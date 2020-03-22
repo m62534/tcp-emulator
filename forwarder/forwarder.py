@@ -43,6 +43,7 @@ def forwarder():
 
     # Associate with server socket file descriptor to the epoll object
     e.register(serverSock.fileno(), select.EPOLLIN)
+    print("server associated with epoll object")
 
     
     serverSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -77,7 +78,7 @@ def forwarder():
 
                 ## send connection request to FINAL host (Store state somewhere. possibly another dict)
                 finalConn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                finalConn.connect(())
+                finalConn.connect((finalHost, finalPort))
                 finalConn.setblocking(0)
                 final_fd = finalConn.fileno()
 
