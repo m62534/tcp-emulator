@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 import json
 import socket
@@ -34,12 +34,26 @@ def forwarder():
     print("Forwarder port: ", forwarderPort)
 
     
-
+    # Create server socket
     serverSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Create epoll object
     e = select.epoll()
+
+    # Associate with server socket file descriptor to the epoll object
     e.register(serverSock.fileno(), select.EPOLLIN)
+
+    
     serverSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serverSock.bind(address)
+    serverSock.bind((serverHost, serverPort))
+    serverSock.listen(5)
+    serverSock.setblocking(0)
+    serverSock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    print("Listening")
+
+    # Insta
+
+
 
 
 
